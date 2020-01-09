@@ -1,6 +1,6 @@
 Name:      icu
 Version:   4.2.1
-Release:   12%{?dist}
+Release:   14%{?dist}
 Summary:   International Components for Unicode
 Group:     Development/Tools
 License:   MIT and UCD and Public Domain
@@ -9,7 +9,7 @@ Source0:   http://download.icu-project.org/files/icu4c/4.2.1/icu4c-4_2_1-src.tgz
 Source1:   icu-config
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: doxygen, autoconf
-Requires: lib%{name} = %{version}-%{release}
+Requires: lib%{name}%{?_isa} = %{version}-%{release}
 
 Patch1:  icu-3.4-multiarchdevel.patch
 Patch2:  icu.6995.kannada.patch
@@ -20,6 +20,7 @@ Patch6:  icu.7119.s390x.patch
 Patch7:  canonicalize.patch
 Patch8:  icu-testtwodigityear.patch
 Patch9:  icu-Latin-US-ASCII.patch
+Patch10: icu.8320.freeserif.crash.patch
 
 %description
 Tools and utilities for developing with icu.
@@ -43,7 +44,7 @@ customize the supplied services.
 %package  -n lib%{name}-devel
 Summary:  Development files for International Components for Unicode
 Group:    Development/Libraries
-Requires: lib%{name} = %{version}-%{release}
+Requires: lib%{name}%{?_isa} = %{version}-%{release}
 Requires: pkgconfig
 
 %description -n lib%{name}-devel
@@ -68,6 +69,7 @@ BuildArch: noarch
 %patch7 -p0 -b .canonicalize.patch
 %patch8 -p1 -b .icu-testtwodigityear.patch
 %patch9 -p1 -b .icu-Latin-US-ASCII.patch
+%patch10 -p1 -b .icu.8320.freeserif.crash.patch
 
 %build
 cd source
@@ -148,6 +150,12 @@ rm -rf $RPM_BUILD_ROOT
 %doc source/__docs/%{name}/html/*
 
 %changelog
+* Wed Mar 02 2016 Eike Rathke <erack@redhat.com> - 4.2.1-14
+- Resolves: rhbz#1247977 add %{?_isa} to Requires for multi-arch systems
+
+* Fri Nov 20 2015 Caolan McNamara <caolanm@redhat.com> - 4.2.1-13
+- Resolves: rhbz#674328 fix freeserif crash
+
 * Mon May 18 2015 Caolan McNamara <caolanm@redhat.com> - 4.2.1-12
 - Resolves: rhbz#1200973 transliteration "Latin/US-ASCII" unavailable
 
