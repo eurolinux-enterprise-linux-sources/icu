@@ -1,0 +1,14 @@
+In the year 2034 ...
+http://sourceforge.net/p/icu/mailman/message/32443311/
+diff -ru icu.orig/source/test/intltest/dtfmttst.cpp icu/source/test/intltest/dtfmttst.cpp
+--- icu.orig/source/test/intltest/dtfmttst.cpp	2009-07-01 20:50:24.000000000 +0200
++++ icu/source/test/intltest/dtfmttst.cpp	2014-12-19 20:45:37.320151884 +0100
+@@ -918,7 +918,7 @@
+         return;
+     }
+     parse2DigitYear(fmt, "5/6/17", date(117, UCAL_JUNE, 5));
+-    parse2DigitYear(fmt, "4/6/34", date(34, UCAL_JUNE, 4));
++    parse2DigitYear(fmt, "4/6/34", date(134, UCAL_JUNE, 4));
+ }
+  
+ // -------------------------------------

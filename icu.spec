@@ -1,6 +1,6 @@
 Name:      icu
 Version:   4.2.1
-Release:   9%{?dist}
+Release:   11%{?dist}
 Summary:   International Components for Unicode
 Group:     Development/Tools
 License:   MIT and UCD and Public Domain
@@ -17,6 +17,8 @@ Patch3:  icu.icu7039.badextract.patch
 Patch4:  icu.6969.pkgdata.patch
 Patch5:  icu.XXXX.install.patch
 Patch6:  icu.7119.s390x.patch
+Patch7:  canonicalize.patch
+Patch8:  icu-testtwodigityear.patch
 
 %description
 Tools and utilities for developing with icu.
@@ -62,6 +64,8 @@ BuildArch: noarch
 %patch4 -p0 -b .icu.6969.pkgdata.patch
 %patch5 -p1 -b .icu.XXXX.install.patch
 %patch6 -p1 -b .icu.7119.s390x.patch
+%patch7 -p0 -b .canonicalize.patch
+%patch8 -p1 -b .icu-testtwodigityear.patch
 
 %build
 cd source
@@ -142,6 +146,12 @@ rm -rf $RPM_BUILD_ROOT
 %doc source/__docs/%{name}/html/*
 
 %changelog
+* Fri Dec 19 2014 Eike Rathke <erack@redhat.com> - 4.2.1-11
+- Resolves: rhbz#1176177 bad TestTwoDigitYear test case
+
+* Mon Dec 12 2011 Caolan McNamara <caolanm@redhat.com> - 4.2.1-10
+- Resolves: rhbz#766540 CVE-2011-4599 localeID overflow
+
 * Thu May 27 2010 Caolan McNamara <caolanm@redhat.com> - 4.2.1-9
 - Resolves: rhbz#596171 drop icu.icu6284.strictalias.patch and use
   -fno-strict-aliasig as upstream has added a pile more and doesn't look
