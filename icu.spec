@@ -1,6 +1,6 @@
 Name:      icu
 Version:   4.2.1
-Release:   11%{?dist}
+Release:   12%{?dist}
 Summary:   International Components for Unicode
 Group:     Development/Tools
 License:   MIT and UCD and Public Domain
@@ -19,6 +19,7 @@ Patch5:  icu.XXXX.install.patch
 Patch6:  icu.7119.s390x.patch
 Patch7:  canonicalize.patch
 Patch8:  icu-testtwodigityear.patch
+Patch9:  icu-Latin-US-ASCII.patch
 
 %description
 Tools and utilities for developing with icu.
@@ -66,6 +67,7 @@ BuildArch: noarch
 %patch6 -p1 -b .icu.7119.s390x.patch
 %patch7 -p0 -b .canonicalize.patch
 %patch8 -p1 -b .icu-testtwodigityear.patch
+%patch9 -p1 -b .icu-Latin-US-ASCII.patch
 
 %build
 cd source
@@ -146,6 +148,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc source/__docs/%{name}/html/*
 
 %changelog
+* Mon May 18 2015 Caolan McNamara <caolanm@redhat.com> - 4.2.1-12
+- Resolves: rhbz#1200973 transliteration "Latin/US-ASCII" unavailable
+
 * Fri Dec 19 2014 Eike Rathke <erack@redhat.com> - 4.2.1-11
 - Resolves: rhbz#1176177 bad TestTwoDigitYear test case
 
