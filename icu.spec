@@ -1,6 +1,6 @@
 Name:      icu
 Version:   50.1.2
-Release:   17%{?dist}
+Release:   8%{?dist}
 Summary:   International Components for Unicode
 Group:     Development/Tools
 License:   MIT and UCD and Public Domain
@@ -10,12 +10,8 @@ Source0:   http://download.icu-project.org/files/icu4c/50.1.2/icu4c-50_1_2-src.t
 # See also http://site.icu-project.org/download/51#TOC-Known-Issues
 Source1:   http://download.icu-project.org/files/icu4c/51.1/icu-51-layout-fix-10107.tgz
 Source2:   icu-config.sh
-Source10:   http://source.icu-project.org/repos/icu/data/trunk/tzdata/icunew/2018e/44/metaZones.txt
-Source11:   http://source.icu-project.org/repos/icu/data/trunk/tzdata/icunew/2018e/44/timezoneTypes.txt
-Source12:   http://source.icu-project.org/repos/icu/data/trunk/tzdata/icunew/2018e/44/windowsZones.txt
-Source13:   http://source.icu-project.org/repos/icu/data/trunk/tzdata/icunew/2018e/44/zoneinfo64.txt
 BuildRequires: doxygen, autoconf, python
-Requires: lib%{name}%{?_isa} = %{version}-%{release}
+Requires: lib%{name} = %{version}-%{release}
 
 Patch1: icu.8198.revert.icu5431.patch
 Patch2: icu.8800.freeserif.crash.patch
@@ -25,9 +21,6 @@ Patch5: gennorm2-man.patch
 Patch6: icuinfo-man.patch
 Patch7: icu.10143.memory.leak.crash.patch
 Patch8: icu.10318.CVE-2013-2924_changeset_34076.patch
-Patch9: icu.rhbz1074549.CVE-2013-5907.patch
-Patch10: icu-testtwodigityear.patch
-Patch11: do-not-fail-intltest-because-of-changed-data.patch
 
 %description
 Tools and utilities for developing with icu.
@@ -51,7 +44,7 @@ customize the supplied services.
 %package  -n lib%{name}-devel
 Summary:  Development files for International Components for Unicode
 Group:    Development/Libraries
-Requires: lib%{name}%{?_isa} = %{version}-%{release}
+Requires: lib%{name} = %{version}-%{release}
 Requires: pkgconfig
 
 %description -n lib%{name}-devel
@@ -79,22 +72,6 @@ BuildArch: noarch
 %patch6 -p1 -b .icuinfo-man.patch
 %patch7 -p1 -b .icu10143.memory.leak.crash.patch
 %patch8 -p1 -b .icu10318.CVE-2013-2924_changeset_34076.patch
-%patch9 -p1 -b .icurhbz1074549.CVE-2013-5907.patch
-%patch10 -p1 -b .icu-testtwodigityear.patch
-%patch11 -p1 -b .do-not-fail-intltest-because-of-changed-data.patch
-
-# http://userguide.icu-project.org/datetime/timezone#TOC-Updating-the-Time-Zone-Data
-# says:
-#
-# > ICU4C TZ update when ICU data is built into a shared library
-# > [...]
-# > Copy the downloaded .txt files into the ICU sources for your installation,
-# > in the subdirectory  source/data/misc/
-# > [...]
-cp %{SOURCE10} source/data/misc/
-cp %{SOURCE11} source/data/misc/
-cp %{SOURCE12} source/data/misc/
-cp %{SOURCE13} source/data/misc/
 
 %build
 cd source
@@ -128,17 +105,6 @@ test -f uconfig.h.prepend && sed -e '/^#define __UCONFIG_H__/ r uconfig.h.prepen
 make %{?_smp_mflags}
 make %{?_smp_mflags} doc
 
-# remove the original timezone data and build the new data from the updated
-# zoneinfo64.txt file:
-%ifarch s390 s390x ppc ppc64
-rm -f ./data/out/build/icudt50b/zoneinfo64.res
-make -C data ./out/build/icudt50b/zoneinfo64.res
-%else
-rm -f ./data/out/build/icudt50l/zoneinfo64.res
-make -C data ./out/build/icudt50l/zoneinfo64.res
-%endif
-make
-
 %install
 rm -rf $RPM_BUILD_ROOT source/__docs
 make %{?_smp_mflags} -C source install DESTDIR=$RPM_BUILD_ROOT
@@ -155,10 +121,7 @@ install -p -m755 -D %{SOURCE2} $RPM_BUILD_ROOT%{_bindir}/icu-config
 if grep -q @VERSION@ source/tools/*/*.8 source/tools/*/*.1 source/config/*.1; then
     exit 1
 fi
-# add CINTLTST_OPTS=-w and INTLTEST_OPTS=-w
-# to turn the errors caused by the timezone data update
-# into warnings:
-make %{?_smp_mflags} -C source check CINTLTST_OPTS=-w INTLTEST_OPTS=-w
+make %{?_smp_mflags} -C source check
 
 %post -n lib%{name} -p /sbin/ldconfig
 
@@ -216,33 +179,6 @@ make %{?_smp_mflags} -C source check CINTLTST_OPTS=-w INTLTEST_OPTS=-w
 %doc source/__docs/%{name}/html/*
 
 %changelog
-* Thu Jun 07 2018 Mike FABIAN <mfabian@redhat.com> - 50.1.2-17
-- Resolves: rhbz#1169339 Update timezone data to tz 2018e
-
-* Wed Aug 19 2015 Eike Rathke <erack@redhat.com> - 50.1.2-16
-- Resolves: rhbz#1254690 add %{?_isa} to Requires for multi-arch systems
-
-* Tue Aug 19 2014 Eike Rathke <erack@redhat.com> - 50.1.2-15
-- Resolves: rhbz#1126237 correct sources list file
-
-* Mon Aug 18 2014 Eike Rathke <erack@redhat.com> - 50.1.2-14
-- Resolves: rhbz#1126237 bumped n-v-r for icu-config.sh upload
-
-* Mon Aug 04 2014 Eike Rathke <erack@redhat.com> - 50.1.2-13
-- Resolves: rhbz#1126237 icu-config for ppc64le
-
-* Mon Jul 14 2014 Eike Rathke <erack@redhat.com> - 50.1.2-12
-- Resolves: rhbz#1115726 bad 2-digit year test case, FTBFS
-
-* Tue Mar 11 2014 Eike Rathke <erack@redhat.com> - 50.1.2-11
-- Resolves: rhbz#1074549 Layout Engine LookupProcessor insufficient input checks
-
-* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 50.1.2-10
-- Mass rebuild 2014-01-24
-
-* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 50.1.2-9
-- Mass rebuild 2013-12-27
-
 * Wed Oct 16 2013 Eike Rathke <erack@redhat.com> - 50.1.2-8
 - Resolves: rhbz#1015593 CVE-2013-2924 use-after-free
 
